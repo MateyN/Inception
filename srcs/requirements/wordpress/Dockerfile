@@ -1,4 +1,4 @@
-FROM wordpress:php7.4-fpm
+FROM debian:buster
 
 # ==> MAJ of apt-get, to get the last version of packages
 RUN apt-get update && apt-get upgrade -y

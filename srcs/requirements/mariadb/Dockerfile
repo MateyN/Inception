@@ -1,5 +1,5 @@
 # ==> Create a container from DEBIAN
-FROM mariadb:latest
+FROM debian:buster
 
 # ==> MAJ of apt-get, to get the last version of packages
 RUN apt-get update && apt-get upgrade -y

@@ -11,7 +11,7 @@ services:
     volumes: 
       - db:/var/lib/mysql
     networks:
-      - app-network
+      - inception
 
   wordpress:
     depends_on: 
@@ -28,7 +28,7 @@ services:
     volumes:
       - wordpress:/var/www/html
     networks:
-      - app-network
+      - inception
 
   webserver:
     depends_on:
@@ -43,7 +43,7 @@ services:
       - ./requirements/nginx/conf:/etc/nginx/conf.d
       - certbot-etc:/etc/letsencrypt
     networks:
-      - app-network
+      - inception
 
   certbot:
     depends_on:
@@ -53,7 +53,10 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
       - wordpress:/var/www/html
-    command: certonly --register-unsafely-without-email --webroot --webroot-path=/var/www/html --email mnikolov@42.fr --agree-tos --no-eff-email --staging -d mnikolov.42.fr -d www.mnikolov.42.fr
+    environment:
+      - CERTBOT_AGREE=true
+    #command: certonly --register-unsafely-without-email --webroot --webroot-path=/var/www/html --email mnikolov@42.fr --agree-tos --no-eff-email --staging -d mnikolov.42.fr -d www.mnikolov.42.fr
+    command: certonly --register-unsafely-without-email --dry-run --agree-tos --webroot -w /var/www/html -d mnikolov.42.fr -d www.mnikolov.42.fr
 
 volumes:
   certbot-etc:
@@ -61,5 +64,5 @@ volumes:
   db:
 
 networks:
-  app-network:
+  inception:
     driver: bridge
