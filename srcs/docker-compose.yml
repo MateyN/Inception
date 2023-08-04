@@ -52,13 +52,13 @@ volumes:
   db:
     driver: local
     driver_opts:
-      device: /home/jschreye/data/database
+      device: /home/mnikolov/data/database
       type: volume
       o: bind
   wordpress:
     driver: local
     driver_opts:
-      device: /home/jschreye/data/wordpress
+      device: /home/mnikolov/data/wordpress
       type: volume
       o: bind
 
