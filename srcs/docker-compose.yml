@@ -49,18 +49,18 @@ services:
       - inception
 
 volumes:
+  db:
+    driver: local
+    driver_opts:
+      device: /home/jschreye/data/database
+      type: volume
+      o: bind
   wordpress:
     driver: local
     driver_opts:
-      device: /home/mnikolov/data/wordpress
+      device: /home/jschreye/data/wordpress
       type: volume
       o: bind
-  db:
-   driver: local
-   driver_opts:
-    device: /home/mnikolov/data/database
-    type: volume
-    o: bind
 
 networks:
   inception:
