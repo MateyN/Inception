@@ -1,4 +1,4 @@
-DOCKER_COMPOSE = docker-compose
+DOCKER_COMPOSE = docker compose
 DOCKER_COMPOSE_FILE = ./srcs/docker-compose.yml
 
 .PHONY: all
@@ -6,7 +6,7 @@ all: build up
 
 .PHONY: build
 build:
-	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) build webserver
+	$(DOCKER_COMPOSE) -f $(DOCKER_COMPOSE_FILE) build
 
 .PHONY: up
 up:

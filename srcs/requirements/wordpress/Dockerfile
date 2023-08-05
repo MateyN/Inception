@@ -1,37 +1,37 @@
-FROM debian:buster
+# syntax=docker/dockerfile:1
 
-# ==> MAJ of apt-get, to get the last version of packages
-RUN apt-get update && apt-get upgrade -y
+FROM    debian:buster
 
-# ==> Install WGET to download the WordPress source code
-RUN apt-get -y install wget
+ENV WP_DOMAIN=${WP_DOMAIN}
 
-# ==> Install PHP 7.3 and its dependencies
-RUN apt-get install -y php7.3\
-	php-fpm\
-	php-mysql\
-	mariadb-client
+# ==== prerequesites ====
+RUN     set -eux; \ 
+        apt-get update && apt-get install -y php php-fpm \
+                                      php-mysql \
+                                      php-gd \
+                                      php-curl \
+                                      php-zip \
+                                      php-json \
+                                      php-xml \
+                                      php-redis \
+                                      openssl \
+                                      php-mbstring \
+                                      php-intl \
+                                      vim \
+                                      curl \
+                                      wget \
+                                      ; \
+        rm -rf /var/lib/apt/lists/*
 
-# download wordpress 6.0 from wordpress.org into /var/www/ and extract it with tar command
-RUN wget https://wordpress.org/wordpress-6.0.tar.gz -P /var/www
-RUN cd /var/www && tar -xzf wordpress-6.0.tar.gz && rm wordpress-6.0.tar.gz
+# ==== setup ====
+COPY	conf/wp-pool.conf /etc/php/7.3/fpm/pool.d/www.conf
+COPY    ./conf/wp-config.php .
+COPY    ./tools/wp-setup.sh .   
 
-#copy of php configuration
-COPY ./conf/php.conf /etc/php/7.3/fpm/pool.d/www.conf
+RUN		mkdir -p /var/www/html/$WP_DOMAIN
+RUN		chmod 777 -R /var/www/html/$WP_DOMAIN
+RUN		chown -R www-data:www-data /var/www/html/$WP_DOMAIN
 
-# give the right to the user to write in the directory
-RUN	chown -R root:root /var/www/wordpress
-
-# install wp-cli to manage wordpress installation
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-
-# copy wp-cli to /usr/local/bin/wp and give the right to the user to write in the directory
-RUN chmod +x wp-cli.phar
-RUN mv wp-cli.phar /usr/local/bin/wp
-
-CMD ["php-fpm"]
-#copy auto_config
-#COPY conf/auto_config.sh auto_config.sh
-
-# RUN mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php
-#ENTRYPOINT ["bash", "auto_config.sh"]
+RUN     chmod +x ./wp-setup.sh 
+ENTRYPOINT ["./wp-setup.sh"]
+EXPOSE 9000
