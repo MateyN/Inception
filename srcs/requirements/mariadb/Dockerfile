@@ -1,30 +1,25 @@
-# syntax=docker/dockerfile:1
+FROM debian:bullseye
 
-FROM alpine:3.17.4
+RUN apt-get update \
+	&& apt-get install -y \
+    mariadb-server \
+    mariadb-client \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
 
-# ==== mandatory =====
-RUN     set -eux; \
-        apk add --no-cache  mariadb \
-                            mariadb-client \
-                            mariadb-common \
-                            mariadb-server-utils \
-                            bash \
-                            vim \
-                            ; \
-        rm -f /etc/mysql/my.cnf /etc/my.cf ~/my.cf
+RUN mkdir -p /var/lib/mysql /var/run/mysqld \
+    && chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
+    && chmod 777 /var/run/mysqld /run/mysqld
 
-# ==== config =====
-COPY    ./conf/my.cnf /etc/mysql/my.cnf
-COPY    ./conf/my.cnf /etc/my.cnf.d/mariadb-server.cnf
-COPY    ./conf/my.cnf /root/.my.cnf 
-
-RUN     set -eux; \
-        mkdir -p /run/mysql /var/lib/mysql; \
-        chmod 777 /var/lib/mysql
-
-COPY    ./tools/mysql-install.sh /mysql-install.sh
-RUN     chmod +x /mysql-install.sh
-
-ENTRYPOINT ["./mysql-install.sh"]
 EXPOSE 3306
-# CMD ["mysqld", "--user=root", "--datadir=/var/lib/mysql"]
+
+COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d
+COPY ./tools/script.sh /usr/local/bin/script.sh
+
+RUN chmod +x /usr/local/bin/script.sh
+
+ENTRYPOINT ["script.sh"]
+
+WORKDIR /usr
+
+CMD ["mysqld_safe", "--datadir=/var/lib/mysql"]
